@@ -1,0 +1,14 @@
+@import 'bourbon/dist/bourbon';
+
+$bg: #eee;
+body {
+	background: $bg;
+
+	p {
+		transition: background .2s linear;
+
+		&:hover {
+			background: #fff;
+		}
+	}
+}
