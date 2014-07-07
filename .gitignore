@@ -1,6 +1,10 @@
 .DS_Store
 .sass-cache/
 assets/scripts/*.js
+assets/scripts/*.map
 assets/styles/*.css
+assets/styles/*.map
+assets/assets.json
 bower_components/
 node_modules/
+languages/*.pot

@@ -16,7 +16,7 @@ module.exports = function(grunt) {
     watch: {
       scripts: {
         files: ['assets/scripts/src/*.js'],
-        tasks: ['jshint', 'concat:theme'],
+        tasks: ['jshint', 'concat'],
       },
       php: {
         files: ['{,*/}*.php'],
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
         cwd: 'assets/styles/sass',
         src: ['*.scss'],
         dest: 'assets/styles/',
-        ext: '.css' // TODO: maybe delete?
+        ext: '.css'
       }
     },
 
@@ -95,13 +95,11 @@ module.exports = function(grunt) {
       options: {
         sourceMap: true,
       },
-      theme: {
+      all: {
         files: {
-          'assets/scripts/main.min.js': ['assets/scripts/main.js']
+          'assets/scripts/main.min.js': ['assets/scripts/main.js'],
+          'assets/scripts/vendor.min.js': ['assets/scripts/main.js']
         }
-      },
-      vendor: {
-        // TODO: uglify concated vendor.js
       }
     },
 
@@ -122,13 +120,16 @@ module.exports = function(grunt) {
       options: {
         separator: ';',
       },
-      theme: {
+      all: {
         src: ['assets/scripts/src/{,*/}*.js'],
         dest: 'assets/scripts/main.js'
-      },
-      vendor: {
-        // TODO: combine bower_componetnts/*/*.css -> vendor.css
-        // src: ['assets/scripts']
+      }
+    },
+
+    bower_concat: { // jshint ignore:line
+      all: {
+        dest: 'assets/scripts/vendor.js',
+        exclude: ['modernizr', 'bourbon']
       }
     },
 
@@ -169,8 +170,12 @@ module.exports = function(grunt) {
       }
     },
 
-    // WordPress assets revisioning.
+    // WordPress assets revisioning
     version: {
+      options: {
+        manifest: 'assets/assets.json',
+        summaryOnly: true,
+      },
       assets: {
         options: {
           rename: true
@@ -192,18 +197,51 @@ module.exports = function(grunt) {
       ]
     },
 
-    dploy: {
-      madnes: {
-        scheme: 'sftp',
-        host: 'madnes.eu',
-        user: 'madnes.eu',
-        // privateKey: '~/.ssh/id_rsa',
-        publicKey: '~/.ssh/id_rsa.pub',
-        check: true,
-        path: {
-          remote: '/sub/polleo-test/wp-content/themes/polleo/'
-        },
-        // exclude: Gruntfile, bower.json, package.json, etc
+    // deploy
+    rsync: {
+      options: {
+        args: [
+          '-axzvh',
+          '--delete',
+          '--delete-after',
+          // '--dry-run'
+        ],
+        exclude: [
+          '.git',
+          '.gitignore',
+          '.sass-cache',
+          'styles/sass/',
+          'scripts/src/',
+          '.DS_Store',
+          'node_modules',
+          'Gruntfile.js',
+          'package.json',
+          'bower.json',
+          'bower_components',
+          '.jshintrc'
+        ],
+        recursive: true
+      },
+      dev: {
+        options: {
+          src: './',
+          // remote path must exist prior to deploy
+          // dest: '/sub/polleo-test/wp-content/themes/polleo/',
+          dest: '/sub/polleo-test/',
+          host: 'madnes.eu@madnes.eu',
+          syncDestIgnoreExcl: true
+        }
+      }
+    },
+
+    // Internationalize WordPress themes and plugins
+    makepot: {
+      all: {
+        options: {
+          type: 'wp-theme',
+          mainFile: 'style.css',
+          domainPath: 'languages/'
+        }
       }
     }
 
@@ -214,7 +252,7 @@ module.exports = function(grunt) {
     'autoprefixer',
     'newer:jshint',
     'newer:phplint',
-    'concat:theme',
+    'concat',
     'watch'
   ]);
 
@@ -223,11 +261,13 @@ module.exports = function(grunt) {
     'sass',
     'autoprefixer',
     'concat',
+    'bower_concat',
     'cssmin',
     'uglify',
     'modernizr',
     'version',
     'newer:imagemin',
+    'makepot'
   ]);
 
   

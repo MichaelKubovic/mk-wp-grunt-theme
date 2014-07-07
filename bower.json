@@ -1,0 +1,14 @@
+{
+  "name": "theme",
+  "version": "1.0.0",
+  "authors": [
+    "Michael Kubovic <kubovic@madad.sk>"
+  ],
+  "license": "Commercial",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "bourbon": "~4.0.2",
+    "modernizr": "~2.8.3"
+  }
+}
